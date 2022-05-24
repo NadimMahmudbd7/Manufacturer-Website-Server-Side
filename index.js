@@ -49,7 +49,7 @@ async function run() {
     try {
         await client.connect()
 
-        app.get("/products", VerifyJwt,  async(req,res)=>{
+        app.get("/products",   async(req,res)=>{
             const products = await TotalServiceCollections.find({}).toArray()
             res.send ({success:"successfully uploaded products", products})
         })
@@ -70,17 +70,29 @@ async function run() {
             const email = req?.query?.email
             const user = req.query.user
             const decodedEmail = req.decoded;
-            console.log(req.query);
            
             if(email === decodedEmail){
                 const result = await TotalUsers.find().toArray()
-                console.log(req.query);
                return res.send({success:"success", result})
             }
             else{
                 return res.send({success:"error"})
             }
         })
+
+        app.put("/users/:email", async(req,res)=>{
+            const email = req.params.email
+            const filter = { email: email }
+            const user = req.body
+            const options = { upsert: true };
+            const updateDoc = {
+                $set: user
+            };
+            const result = await TotalUsers.updateOne(filter, updateDoc, options);
+            res.send({ result })
+        })
+
+
         app.get("/user", async(req,res)=>{
             const email = req.query.email
             const filter = {email:email}
@@ -90,7 +102,9 @@ async function run() {
 
         app.get('/myorders', VerifyJwt, async(req, res) => {
             const email = req?.query?.email
+            console.log(email);
             const decodedEmail = req.decoded;
+            console.log("decoded",decodedEmail);
            
             if(email === decodedEmail){
                 const filter ={email:email}
@@ -176,9 +190,8 @@ async function run() {
             }
             else {
                 const deliverQty = parseInt(req.body.deliverQty)
-                console.log(deliverQty);
                 if (previusQty < deliverQty || deliverQty <= 0 ) {
-                    res.send({ error: "You Haven't Enough Quentity For Deliver" })
+                    res.send({ error: "Oops !! Pleasee Check Stock" })
                 }
                 
                 else {
@@ -203,6 +216,13 @@ async function run() {
            const result = await TotalOrder.findOne(query)
            console.log(result);
            res.send({success:"get successfully",result:result})
+        })
+
+        app.delete('/products/:id', async (req, res) => {
+            const id = req.params.id
+            const query = { _id: ObjectId(id) }
+            const result = await TotalOrder.deleteOne(query)
+            res.send(result)
         })
     }
     finally {
