@@ -102,9 +102,9 @@ async function run() {
 
         app.get('/myorders', VerifyJwt, async(req, res) => {
             const email = req?.query?.email
-            console.log(email);
+           
             const decodedEmail = req.decoded;
-            console.log("decoded",decodedEmail);
+            
            
             if(email === decodedEmail){
                 const filter ={email:email}
@@ -182,6 +182,17 @@ async function run() {
             res.send(result)
         })
 
+        app.put("/products", async(req,res)=>{
+            const id = req.params.id
+            console.log(id);
+            const filter = { _id: ObjectId(id) }
+            
+        })
+
+        app.get("/totalorder", async(req,res)=>{
+            const orders = await TotalOrder.find().toArray()
+            res.send({success:"order collected",orders})
+        })
         app.put("/deliverproduct/:id",async(req,res)=>{
             const id = req.params.id
             let previusQty = parseInt(req.body.qty)
