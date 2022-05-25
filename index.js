@@ -161,15 +161,22 @@ async function run() {
             const token = jwt.sign(email, process.env.ACCESS_TOKEN);
             res.send({ result, token })
         })
-        app.put("/user/admin/:email", async (req, res) => {
+        app.put("/user/admin/:email", VerifyJwt, async (req, res) => {
             const email = req.params.email
-            const filter = { email: email }
+            const requester = req.decoded
+            const requesterAccount = await TotalUsers.findOne({email:requester})
+            if(requesterAccount.Role === "admin"){
 
-            const updateDoc = {
-                $set: {Role:"admin"}
-            };
-            const result = await TotalUsers.updateOne(filter, updateDoc);
-            res.send(result)
+                const filter = { email: email }
+                const updateDoc = {
+                    $set: {Role:"admin"}
+                };
+                const result = await TotalUsers.updateOne(filter, updateDoc);
+                res.send(result)
+            }
+            else{
+                res.status(403).send({Message:"Forbidden"})
+            }
         })
         app.patch("/user/admin/:email", async (req, res) => {
             const email = req.params.email
