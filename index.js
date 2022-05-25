@@ -49,7 +49,7 @@ async function run() {
     try {
         await client.connect()
 
-        app.get("/products",   async(req,res)=>{
+        app.get("/products", async(req,res)=>{
             const products = await TotalServiceCollections.find({}).toArray()
             res.send ({success:"successfully uploaded products", products})
         })
@@ -147,6 +147,18 @@ async function run() {
             const payment = await TotalOrder.updateOne(filter, updateDoc, options);
             res.send({success:"payment done", payment})
         })
+        app.put("/order", async(req,res)=>{
+            const id = req.query.id
+            const filter = {_id:ObjectId(id)}
+            const options = { upsert: true };
+            const updateDoc = {
+                $set: {
+                    shipping:"confirm"
+                }
+            };
+            const payment = await TotalOrder.updateOne(filter, updateDoc, options);
+            res.send({success:"payment done", payment})
+        })
 
 
         app.put("/user/:email", async (req, res) => {
@@ -196,7 +208,7 @@ async function run() {
             
         })
 
-        app.get("/totalorder", async(req,res)=>{
+        app.get("/totalorder", VerifyJwt, async(req,res)=>{
             const orders = await TotalOrder.find().toArray()
             res.send({success:"order collected",orders})
         })
@@ -240,6 +252,12 @@ async function run() {
             const id = req.params.id
             const query = { _id: ObjectId(id) }
             const result = await TotalOrder.deleteOne(query)
+            res.send(result)
+        })
+        app.delete('/allproducts/:id', VerifyJwt, async (req, res) => {
+            const id = req.params.id
+            const query = { _id: ObjectId(id) }
+            const result = await TotalServiceCollections.deleteOne(query)
             res.send(result)
         })
     }
