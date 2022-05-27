@@ -274,7 +274,7 @@ async function run() {
 
 
 
-
+        // Default for checking
         
         app.put("/products", async (req, res) => {
             const id = req.params.id
