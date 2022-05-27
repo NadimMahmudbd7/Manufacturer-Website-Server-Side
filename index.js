@@ -373,6 +373,7 @@ app.get('/', (req, res) => {
     res.send("website is running")
 })
 
+    // For port running
 app.listen(port, () => {
     console.log("listening port:", port);
 })
